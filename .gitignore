@@ -1,0 +1,12 @@
+# .gitignore for KoreForge.Settings
+artifacts/
+out/
+**/bin/
+**/obj/
+*.user
+.vs/
+.idea/
+*.suo
+*.DS_Store
+TestResults/
+coverage-report/

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <UseAppHost>false</UseAppHost>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.msbuild">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\KF.Settings.Abstractions\KF.Settings.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\KF.Settings.Core\KF.Settings.Core.csproj" />
+    <ProjectReference Include="..\..\src\KF.Settings.Data\KF.Settings.Data.csproj" />
+    <ProjectReference Include="..\..\src\KF.Settings\KF.Settings.csproj" />
+    <ProjectReference Include="..\..\src\KF.Settings.Metrics\KF.Settings.Metrics.csproj" />
+    <ProjectReference Include="..\..\src\KF.Settings.Encryption\KF.Settings.Encryption.csproj" />
+    <ProjectReference Include="..\..\src\KF.Settings.Cli\KF.Settings.Cli.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

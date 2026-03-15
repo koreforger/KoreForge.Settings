@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>KoreForge.Settings.Core</PackageId>
+    <AssemblyName>KF.Settings.Core</AssemblyName>
+    <RootNamespace>KF.Settings.Core</RootNamespace>
+    <Description>Core services implementation for KoreForge settings.</Description>
+    <PackageTags>configuration;settings;multi-tenant;provider</PackageTags>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KF.Settings.Abstractions\KF.Settings.Abstractions.csproj" />
+    <ProjectReference Include="..\KF.Settings.Data\KF.Settings.Data.csproj" />
+    <ProjectReference Include="..\KF.Settings.Encryption\KF.Settings.Encryption.csproj" />
+    <ProjectReference Include="..\KF.Settings.Metrics\KF.Settings.Metrics.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>KF.Settings.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

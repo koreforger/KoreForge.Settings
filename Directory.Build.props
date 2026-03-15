@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <Authors>KoreForge</Authors>
+    <Company>KoreForge</Company>
+    <Copyright>Copyright © KoreForge $(Year)</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/KoreForge/KoreForge.Settings</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\</PackageOutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- MinVer versioning from git tags -->
+    <MinVerTagPrefix>KoreForge.Settings/v</MinVerTagPrefix>
+    <MinVerSkipUnknownTag>true</MinVerSkipUnknownTag>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

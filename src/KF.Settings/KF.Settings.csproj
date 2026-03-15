@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Multi-DLL Bundling Pattern: TargetsForTfmSpecificBuildOutput
+
+    This package bundles KF.Settings.Abstractions, KF.Settings.Core, KF.Settings.Data,
+    KF.Settings.Encryption, and KF.Settings.Metrics into a single NuGet package
+    (KoreForge.Settings) along with the provider itself.
+
+    The _IncludeSettingsAssemblies target runs during pack and adds matching project
+    reference DLLs to TfmSpecificPackageFile for inclusion in lib/{tfm}/.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>KoreForge.Settings</PackageId>
+    <AssemblyName>KF.Settings</AssemblyName>
+    <RootNamespace>KF.Settings</RootNamespace>
+    <Description>KoreForge multi-app settings — SQL Server-backed configuration provider with history, rollback, encryption, metrics, and background reload.</Description>
+    <PackageTags>configuration;settings;provider;reload;multi-app;multi-tenant;sql-server</PackageTags>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_IncludeSettingsAssemblies</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="_IncludeSettingsAssemblies" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <_SettingsAssemblies Include="@(ReferenceCopyLocalPaths)"
+        Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' and (
+          '%(ReferenceCopyLocalPaths.FileName)' == 'KF.Settings.Abstractions' or
+          '%(ReferenceCopyLocalPaths.FileName)' == 'KF.Settings.Core' or
+          '%(ReferenceCopyLocalPaths.FileName)' == 'KF.Settings.Data' or
+          '%(ReferenceCopyLocalPaths.FileName)' == 'KF.Settings.Encryption' or
+          '%(ReferenceCopyLocalPaths.FileName)' == 'KF.Settings.Metrics')" />
+      <TfmSpecificPackageFile Include="@(_SettingsAssemblies)">
+        <PackagePath>lib\$(TargetFramework)\</PackagePath>
+        <BuildOutputInPackage>true</BuildOutputInPackage>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KF.Settings.Abstractions\KF.Settings.Abstractions.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\KF.Settings.Core\KF.Settings.Core.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\KF.Settings.Data\KF.Settings.Data.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\KF.Settings.Encryption\KF.Settings.Encryption.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\KF.Settings.Metrics\KF.Settings.Metrics.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>KF.Settings.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

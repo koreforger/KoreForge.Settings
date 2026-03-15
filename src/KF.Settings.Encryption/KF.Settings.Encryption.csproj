@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>KoreForge.Settings.Encryption</PackageId>
+    <AssemblyName>KF.Settings.Encryption</AssemblyName>
+    <RootNamespace>KF.Settings.Encryption</RootNamespace>
+    <Description>No-op encryption provider for KoreForge settings.</Description>
+    <PackageTags>configuration;settings;encryption</PackageTags>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KF.Settings.Abstractions\KF.Settings.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
