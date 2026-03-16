@@ -2,6 +2,7 @@
 artifacts/
 out/
 **/bin/
+!/bin/
 **/obj/
 *.user
 .vs/
