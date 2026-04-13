@@ -33,6 +33,7 @@
 
   <!-- Test packages -->
   <ItemGroup>
+    <PackageVersion Include="coverlet.collector"          Version="6.0.4"   />
     <PackageVersion Include="coverlet.msbuild"          Version="6.0.4"   />
     <PackageVersion Include="FluentAssertions"           Version="6.12.0"  />
     <PackageVersion Include="Microsoft.NET.Test.Sdk"    Version="17.14.1" />
