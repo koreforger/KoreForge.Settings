@@ -20,6 +20,7 @@ CREATE TABLE dbo.Settings (
   ID               BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
   ApplicationId    NVARCHAR(200)  NULL,
   InstanceId       NVARCHAR(200)  NULL,
+  ClientAppVersion NVARCHAR(200)  NULL,
   [Key]            NVARCHAR(2048) NOT NULL,
   [Value]          NVARCHAR(MAX)  NULL,
   BinaryValue      VARBINARY(MAX) NULL,
@@ -36,21 +37,34 @@ CREATE TABLE dbo.Settings (
 END
 GO
 
--- Filtered unique indexes (NULL-safe uniqueness)
+-- Filtered unique indexes (NULL-safe uniqueness, 5 levels matching ClientAppVersion scope resolution)
+-- Level 5: global (app NULL, inst NULL, ver NULL)
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='UX_Settings_Global_Key')
     CREATE UNIQUE INDEX UX_Settings_Global_Key ON dbo.Settings([Key])
-        WHERE ApplicationId IS NULL AND InstanceId IS NULL;
+        WHERE ApplicationId IS NULL AND InstanceId IS NULL AND ClientAppVersion IS NULL;
 GO
+-- Level 4: app-only (app NOT NULL, inst NULL, ver NULL)
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='UX_Settings_App_Key')
     CREATE UNIQUE INDEX UX_Settings_App_Key ON dbo.Settings(ApplicationId, [Key])
-        WHERE ApplicationId IS NOT NULL AND InstanceId IS NULL;
+        WHERE ApplicationId IS NOT NULL AND InstanceId IS NULL AND ClientAppVersion IS NULL;
 GO
+-- Level 3: app+instance (app NOT NULL, inst NOT NULL, ver NULL)
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='UX_Settings_Instance_Key')
     CREATE UNIQUE INDEX UX_Settings_Instance_Key ON dbo.Settings(ApplicationId, InstanceId, [Key])
-        WHERE ApplicationId IS NOT NULL AND InstanceId IS NOT NULL;
+        WHERE ApplicationId IS NOT NULL AND InstanceId IS NOT NULL AND ClientAppVersion IS NULL;
+GO
+-- Level 2: app+clientversion (app NOT NULL, inst NULL, ver NOT NULL)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='UX_Settings_AppVersion_Key')
+    CREATE UNIQUE INDEX UX_Settings_AppVersion_Key ON dbo.Settings(ApplicationId, ClientAppVersion, [Key])
+        WHERE ApplicationId IS NOT NULL AND InstanceId IS NULL AND ClientAppVersion IS NOT NULL;
+GO
+-- Level 1: app+instance+clientversion (all NOT NULL)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='UX_Settings_InstanceVersion_Key')
+    CREATE UNIQUE INDEX UX_Settings_InstanceVersion_Key ON dbo.Settings(ApplicationId, InstanceId, ClientAppVersion, [Key])
+        WHERE ApplicationId IS NOT NULL AND InstanceId IS NOT NULL AND ClientAppVersion IS NOT NULL;
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_Settings_Scope_Key')
-    CREATE INDEX IX_Settings_Scope_Key ON dbo.Settings(ApplicationId, InstanceId, [Key])
+    CREATE INDEX IX_Settings_Scope_Key ON dbo.Settings(ApplicationId, InstanceId, ClientAppVersion, [Key])
         INCLUDE (ModifiedDate, RowVersion);
 GO
 
@@ -61,6 +75,7 @@ CREATE TABLE dbo.SettingsHistory (
   SettingId         BIGINT NULL,
   ApplicationId     NVARCHAR(200)  NULL,
   InstanceId        NVARCHAR(200)  NULL,
+  ClientAppVersion  NVARCHAR(200)  NULL,
   [Key]             NVARCHAR(2048) NOT NULL,
   OldValue          NVARCHAR(MAX)  NULL,
   OldBinaryValue    VARBINARY(MAX) NULL,
@@ -83,7 +98,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_SettingsHistory_SettingI
     CREATE INDEX IX_SettingsHistory_SettingId ON dbo.SettingsHistory(SettingId);
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_SettingsHistory_KeyScopeDate')
-    CREATE INDEX IX_SettingsHistory_KeyScopeDate ON dbo.SettingsHistory(ApplicationId, InstanceId, [Key], ChangedDate DESC);
+    CREATE INDEX IX_SettingsHistory_KeyScopeDate ON dbo.SettingsHistory(ApplicationId, InstanceId, ClientAppVersion, [Key], ChangedDate DESC);
 GO
 
 PRINT 'KFSettings database initialised successfully.';

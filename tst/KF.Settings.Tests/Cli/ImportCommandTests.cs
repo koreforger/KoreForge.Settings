@@ -34,7 +34,7 @@ public class ImportCommandTests
         var rs = Build();
         var cmd = ExportImport.CreateImport(_ => rs);
         var tmp = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
-        var docs = new[] { new ExportImport.ImportDoc("Key1", "Value1", false, null, null) };
+        var docs = new[] { new ExportImport.ImportDoc("Key1", "Value1", false, null, null, null) };
         await File.WriteAllTextAsync(tmp, JsonSerializer.Serialize(docs));
         var exit = await cmd.InvokeAsync(new[] { "--file", tmp });
         exit.Should().Be(0);
@@ -48,7 +48,7 @@ public class ImportCommandTests
         var rs = Build();
         var cmd = ExportImport.CreateImport(_ => rs);
         var tmp = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
-        var docs = new[] { new ExportImport.ImportDoc("Key2", "Value2", true, null, null) };
+        var docs = new[] { new ExportImport.ImportDoc("Key2", "Value2", true, null, null, null) };
         await File.WriteAllTextAsync(tmp, JsonSerializer.Serialize(docs));
         var exit = await cmd.InvokeAsync(new[] { "--file", tmp, "--apply" });
         exit.Should().Be(0);
@@ -66,7 +66,7 @@ public class ImportCommandTests
         await svc.UpsertAsync(new SettingUpsert { Key = "Key3", Value = "A", ChangedBy = "u" }, CancellationToken.None);
         var cmd = ExportImport.CreateImport(_ => rs);
         var tmp = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
-        var docs = new[] { new ExportImport.ImportDoc("Key3", "B", false, null, null) };
+        var docs = new[] { new ExportImport.ImportDoc("Key3", "B", false, null, null, null) };
         await File.WriteAllTextAsync(tmp, JsonSerializer.Serialize(docs));
         var exit = await cmd.InvokeAsync(new[] { "--file", tmp, "--apply", "--upsert:false" });
         exit.Should().Be(0);

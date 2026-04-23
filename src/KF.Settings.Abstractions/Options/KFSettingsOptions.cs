@@ -7,6 +7,7 @@ public sealed class KFSettingsOptions
     public string? ConnectionString { get; set; }
     public string? ApplicationId { get; set; }
     public string? InstanceId { get; set; }
+    public string? ClientAppVersion { get; set; }
     public TimeSpan PollingInterval { get; set; } = TimeSpan.FromMinutes(1);
     public BinaryEncoding BinaryEncoding { get; set; } = BinaryEncoding.Base64Url;
     public bool FailFastOnStartup { get; set; } = true;

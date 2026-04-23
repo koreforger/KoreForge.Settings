@@ -20,8 +20,8 @@ internal static class ExportImport
             var includeSecrets = ctx.ParseResult.GetValueForOption(includeSecretsOpt);
             var rs = servicesFactory(ctx);
             var svc = rs.Provider.GetRequiredService<ISettingsService>();
-            var rows = await svc.QueryAsync(new SettingQuery { ApplicationId = rs.Options.ApplicationId, InstanceId = rs.Options.InstanceId }, ctx.GetCancellationToken());
-            var shaped = rows.Select(r => new { r.ApplicationId, r.InstanceId, r.Key, Value = (r.IsSecret && !includeSecrets) ? null : r.Value, r.IsSecret, r.ValueEncrypted, r.Comment });
+            var rows = await svc.QueryAsync(new SettingQuery { ApplicationId = rs.Options.ApplicationId, InstanceId = rs.Options.InstanceId, ClientAppVersion = rs.Options.ClientAppVersion }, ctx.GetCancellationToken());
+            var shaped = rows.Select(r => new { r.ApplicationId, r.InstanceId, r.ClientAppVersion, r.Key, Value = (r.IsSecret && !includeSecrets) ? null : r.Value, r.IsSecret, r.ValueEncrypted, r.Comment });
             var json = JsonSerializer.Serialize(shaped, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(file, json, ctx.GetCancellationToken());
             Console.WriteLine($"Exported {rows.Count} settings -> {file}");
@@ -57,6 +57,7 @@ internal static class ExportImport
                     {
                         ApplicationId = d.ApplicationId ?? rs.Options.ApplicationId,
                         InstanceId = d.InstanceId ?? rs.Options.InstanceId,
+                        ClientAppVersion = d.ClientAppVersion ?? rs.Options.ClientAppVersion,
                         Key = d.Key,
                         Value = d.Value,
                         IsSecret = assumeSecret || d.IsSecret,
@@ -64,7 +65,7 @@ internal static class ExportImport
                     };
                     if (!upsert)
                     {
-                        var existing = await svc.QueryAsync(new SettingQuery { ApplicationId = upsertRequest.ApplicationId, InstanceId = upsertRequest.InstanceId, KeyPrefix = d.Key }, ctx.GetCancellationToken());
+                        var existing = await svc.QueryAsync(new SettingQuery { ApplicationId = upsertRequest.ApplicationId, InstanceId = upsertRequest.InstanceId, ClientAppVersion = upsertRequest.ClientAppVersion, KeyPrefix = d.Key }, ctx.GetCancellationToken());
                         if (existing.Any(e => e.Key.Equals(d.Key, StringComparison.OrdinalIgnoreCase)))
                         {
                             Console.WriteLine($"Skip existing {d.Key}");
@@ -81,5 +82,5 @@ internal static class ExportImport
         return cmd;
     }
 
-    internal sealed record ImportDoc(string Key, string? Value, bool IsSecret, string? ApplicationId, string? InstanceId);
+    internal sealed record ImportDoc(string Key, string? Value, bool IsSecret, string? ApplicationId, string? InstanceId, string? ClientAppVersion);
 }

@@ -65,4 +65,37 @@ public class SettingsServiceTests
         (await db.Settings.CountAsync()).Should().Be(0);
         (await db.SettingsHistory.CountAsync()).Should().Be(2); // insert + delete
     }
+
+    [Fact]
+    public async Task Given_SameKeyDifferentClientVersions_When_UpsertBoth_Then_BothExistIndependently()
+    {
+        var svc = Create(out var f, out _);
+        var legacy = await svc.UpsertAsync(new SettingUpsert { Key = "BatchSize", Value = "50", ApplicationId = "App1", ChangedBy = "u" }, CancellationToken.None);
+        var next = await svc.UpsertAsync(new SettingUpsert { Key = "BatchSize", Value = "100", ApplicationId = "App1", ClientAppVersion = "v2.0.0", ChangedBy = "u" }, CancellationToken.None);
+        legacy.ClientAppVersion.Should().BeNull();
+        next.ClientAppVersion.Should().Be("v2.0.0");
+        var db = f.CreateDbContext();
+        (await db.Settings.CountAsync()).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Given_SameKeyAndClientVersion_When_UpdatedWithCorrectRowVersion_Then_VersionScopePreserved()
+    {
+        var svc = Create(out _, out _);
+        var created = await svc.UpsertAsync(new SettingUpsert { Key = "K", Value = "old", ApplicationId = "App1", ClientAppVersion = "v2.0.0", ChangedBy = "u" }, CancellationToken.None);
+        var updated = await svc.UpsertAsync(new SettingUpsert { Key = "K", Value = "new", ApplicationId = "App1", ClientAppVersion = "v2.0.0", ChangedBy = "u", ExpectedRowVersion = created.RowVersion }, CancellationToken.None);
+        updated.Value.Should().Be("new");
+        updated.ClientAppVersion.Should().Be("v2.0.0");
+    }
+
+    [Fact]
+    public async Task Given_VersionScopeSetting_When_QueryFilteredByVersion_Then_OnlyMatchingReturned()
+    {
+        var svc = Create(out _, out _);
+        await svc.UpsertAsync(new SettingUpsert { Key = "K", Value = "legacy", ApplicationId = "App1", ChangedBy = "u" }, CancellationToken.None);
+        await svc.UpsertAsync(new SettingUpsert { Key = "K", Value = "v2val", ApplicationId = "App1", ClientAppVersion = "v2.0.0", ChangedBy = "u" }, CancellationToken.None);
+        var v2Rows = await svc.QueryAsync(new SettingQuery { ApplicationId = "App1", ClientAppVersion = "v2.0.0" }, CancellationToken.None);
+        v2Rows.Should().HaveCount(1);
+        v2Rows.Single().Value.Should().Be("v2val");
+    }
 }

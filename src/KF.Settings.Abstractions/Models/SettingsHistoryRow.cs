@@ -5,6 +5,7 @@ public sealed record SettingsHistoryRow(
     long? SettingId,
     string? ApplicationId,
     string? InstanceId,
+    string? ClientAppVersion,
     string Key,
     string? OldValue,
     byte[]? OldBinaryValue,

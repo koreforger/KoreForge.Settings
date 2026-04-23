@@ -11,6 +11,7 @@ public class SettingsHistoryEntity
     public long? SettingId { get; set; }
     [MaxLength(200)] public string? ApplicationId { get; set; }
     [MaxLength(200)] public string? InstanceId { get; set; }
+    [MaxLength(200)] public string? ClientAppVersion { get; set; }
     [Required, MaxLength(2048)] public string Key { get; set; } = string.Empty;
     public string? OldValue { get; set; }
     public byte[]? OldBinaryValue { get; set; }

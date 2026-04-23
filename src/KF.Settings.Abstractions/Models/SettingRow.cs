@@ -4,6 +4,7 @@ public sealed record SettingRow(
     long Id,
     string? ApplicationId,
     string? InstanceId,
+    string? ClientAppVersion,
     string Key,
     string? Value,
     byte[]? BinaryValue,

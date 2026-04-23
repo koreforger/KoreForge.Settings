@@ -10,6 +10,7 @@ public class SettingEntity
     public long Id { get; set; }
     [MaxLength(200)] public string? ApplicationId { get; set; }
     [MaxLength(200)] public string? InstanceId { get; set; }
+    [MaxLength(200)] public string? ClientAppVersion { get; set; }
     [Required, MaxLength(2048)] public string Key { get; set; } = string.Empty;
     public string? Value { get; set; }
     public byte[]? BinaryValue { get; set; }

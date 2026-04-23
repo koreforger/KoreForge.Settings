@@ -16,9 +16,11 @@ var root = new RootCommand("KoreForge Settings CLI — manage SQL Server-backed 
 
 var appOpt = new Option<string>("--application", description: "Application Id") { IsRequired = true };
 var instOpt = new Option<string?>("--instance", () => null, "Instance Id");
+var clientVerOpt = new Option<string?>("--client-version", () => null, "Client app version (for staged rollout scope)");
 var connOpt = new Option<string?>("--connection", () => null, "SQL Server connection string (overrides KF_SETTINGS_CONNECTIONSTRING env var)");
 root.AddGlobalOption(appOpt);
 root.AddGlobalOption(instOpt);
+root.AddGlobalOption(clientVerOpt);
 root.AddGlobalOption(connOpt);
 
 RootServices BuildServices(InvocationContext ctx) => BuildServicesInternal(ctx);
@@ -27,10 +29,11 @@ RootServices BuildServicesInternal(InvocationContext ctx)
 {
     var app = ctx.ParseResult.GetValueForOption(appOpt)!;
     var inst = ctx.ParseResult.GetValueForOption(instOpt);
+    var clientVer = ctx.ParseResult.GetValueForOption(clientVerOpt);
     var conn = ctx.ParseResult.GetValueForOption(connOpt)
                ?? Environment.GetEnvironmentVariable("KF_SETTINGS_CONNECTIONSTRING")
                ?? throw new InvalidOperationException("Connection string required. Use --connection or set KF_SETTINGS_CONNECTIONSTRING.");
-    var opts = new KFSettingsOptions { ApplicationId = app, InstanceId = inst, ConnectionString = conn };
+    var opts = new KFSettingsOptions { ApplicationId = app, InstanceId = inst, ClientAppVersion = clientVer, ConnectionString = conn };
     var services = new ServiceCollection();
     services.AddSingleton(opts);
     services.AddSingleton<IEncryptionProvider, NoOpEncryptionProvider>();
@@ -114,7 +117,7 @@ set.SetHandler(async (InvocationContext ctx) =>
         {
             Key = key, Value = val, BinaryValue = bin, IsSecret = secret,
             ChangedBy = Environment.UserName, ExpectedRowVersion = expected,
-            ApplicationId = rs.Options.ApplicationId, InstanceId = rs.Options.InstanceId
+            ApplicationId = rs.Options.ApplicationId, InstanceId = rs.Options.InstanceId, ClientAppVersion = rs.Options.ClientAppVersion
         }, ctx.GetCancellationToken());
         Console.WriteLine($"OK Id={result.Id} RowVersion={Convert.ToHexString(result.RowVersion)}");
     }
@@ -168,7 +171,7 @@ rollback.SetHandler(async (InvocationContext ctx) =>
     var idx = ctx.ParseResult.GetValueForArgument(rollbackIndexArg);
     var rs = BuildServices(ctx);
     var hs = rs.Provider.GetRequiredService<IHistoryService>();
-    try { await hs.RollbackAsync(key, idx, Environment.UserName, ctx.GetCancellationToken()); Console.WriteLine("Rolled back"); }
+    try { await hs.RollbackAsync(key, rs.Options.ApplicationId, rs.Options.InstanceId, rs.Options.ClientAppVersion, idx, Environment.UserName, ctx.GetCancellationToken()); Console.WriteLine("Rolled back"); }
     catch (DomainException ex) { Console.Error.WriteLine($"ERROR {ex.Code}: {ex.Message}"); ctx.ExitCode = 1; }
 });
 root.Add(rollback);

@@ -24,14 +24,16 @@ public sealed class HistoryService : IHistoryService
         return hist.Select(Map).ToList();
     }
 
-    public async Task RollbackAsync(string key, int versionIndex, string changedBy, CancellationToken ct)
+    public async Task RollbackAsync(string key, string? applicationId, string? instanceId, string? clientAppVersion, int versionIndex, string changedBy, CancellationToken ct)
     {
         await using var db = await _factory.CreateDbContextAsync(ct);
-        var histOrdered = await db.SettingsHistory.Where(h => h.Key == key).OrderByDescending(h => h.HistoryId).ToListAsync(ct);
+        var histOrdered = await db.SettingsHistory
+            .Where(h => h.Key == key && h.ApplicationId == applicationId && h.InstanceId == instanceId && h.ClientAppVersion == clientAppVersion)
+            .OrderByDescending(h => h.HistoryId).ToListAsync(ct);
         if (versionIndex < 0 || versionIndex >= histOrdered.Count) throw new ArgumentOutOfRangeException(nameof(versionIndex));
         var target = histOrdered[versionIndex];
 
-        var current = await db.Settings.FirstOrDefaultAsync(s => s.Key == key && s.ApplicationId == target.ApplicationId && s.InstanceId == target.InstanceId, ct);
+        var current = await db.Settings.FirstOrDefaultAsync(s => s.Key == key && s.ApplicationId == applicationId && s.InstanceId == instanceId && s.ClientAppVersion == clientAppVersion, ct);
         if (target.Operation is "Update" or "Rollback" or "Insert")
         {
             if (current == null) throw new RollbackConflictException(key, target.ApplicationId, target.InstanceId, target.RowVersionAfter, null);
@@ -52,6 +54,7 @@ public sealed class HistoryService : IHistoryService
                 SettingId = current.Id,
                 ApplicationId = current.ApplicationId,
                 InstanceId = current.InstanceId,
+                ClientAppVersion = current.ClientAppVersion,
                 Key = current.Key,
                 OldValue = target.NewValue,
                 OldBinaryValue = target.NewBinaryValue,
@@ -77,6 +80,7 @@ public sealed class HistoryService : IHistoryService
             {
                 ApplicationId = target.ApplicationId,
                 InstanceId = target.InstanceId,
+                ClientAppVersion = target.ClientAppVersion,
                 Key = target.Key,
                 Value = target.OldValue,
                 BinaryValue = target.OldBinaryValue,
@@ -94,6 +98,7 @@ public sealed class HistoryService : IHistoryService
                 SettingId = restored.Id,
                 ApplicationId = restored.ApplicationId,
                 InstanceId = restored.InstanceId,
+                ClientAppVersion = restored.ClientAppVersion,
                 Key = restored.Key,
                 NewValue = restored.Value,
                 NewBinaryValue = restored.BinaryValue,
@@ -117,6 +122,7 @@ public sealed class HistoryService : IHistoryService
         h.SettingId,
         h.ApplicationId,
         h.InstanceId,
+        h.ClientAppVersion,
         h.Key,
         h.OldValue,
         h.OldBinaryValue,

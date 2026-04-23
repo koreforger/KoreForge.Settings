@@ -135,7 +135,14 @@ public sealed class SettingsReloadBackgroundService : BackgroundService
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
         var predicate = InScope();
         var rows = await db.Settings.AsNoTracking().Where(predicate).ToListAsync(ct);
-        var ordered = rows.OrderBy(r => r.ApplicationId != null ? 1 : 0).ThenBy(r => r.InstanceId != null ? 1 : 0);
+        // Process from lowest to highest priority so last write wins.
+        // Priority rank (ascending = processed first = overridden by later entries):
+        //   0: global (app NULL, inst NULL, ver NULL)
+        //   1: app-only (app, NULL, NULL)
+        //   2: app+instance (app, inst, NULL)
+        //   3: app+clientversion (app, NULL, ver)
+        //   4: app+instance+clientversion (app, inst, ver)
+        var ordered = rows.OrderBy(ScopePriority);
         var dict = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
         var bin = ImmutableDictionary.CreateBuilder<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         foreach (var r in ordered)
@@ -150,10 +157,30 @@ public sealed class SettingsReloadBackgroundService : BackgroundService
         _logger.LogInformation("Settings snapshot published: keys={Count} binaries={BinCount}", dict.Count, bin.Count);
     }
 
-    private Expression<Func<SettingEntity, bool>> InScope() =>
-        s => (s.ApplicationId == null && s.InstanceId == null) ||
-             (s.ApplicationId == _options.ApplicationId && s.InstanceId == null) ||
-             (_options.InstanceId != null && s.ApplicationId == _options.ApplicationId && s.InstanceId == _options.InstanceId);
+    private static int ScopePriority(SettingEntity r) =>
+        r.ApplicationId == null ? 0 :
+        r.InstanceId == null && r.ClientAppVersion == null ? 1 :
+        r.InstanceId != null && r.ClientAppVersion == null ? 2 :
+        r.InstanceId == null && r.ClientAppVersion != null ? 3 :
+        4; // app+instance+clientversion
+
+    private Expression<Func<SettingEntity, bool>> InScope()
+    {
+        var appId = _options.ApplicationId;
+        var instId = _options.InstanceId;
+        var clientVer = _options.ClientAppVersion;
+        return s =>
+            // Level 5: global
+            (s.ApplicationId == null && s.InstanceId == null && s.ClientAppVersion == null) ||
+            // Level 4: app-only (no instance, no version)
+            (s.ApplicationId == appId && s.InstanceId == null && s.ClientAppVersion == null) ||
+            // Level 3: app+instance (no version)
+            (instId != null && s.ApplicationId == appId && s.InstanceId == instId && s.ClientAppVersion == null) ||
+            // Level 2: app+clientversion (no instance)
+            (clientVer != null && s.ApplicationId == appId && s.InstanceId == null && s.ClientAppVersion == clientVer) ||
+            // Level 1: app+instance+clientversion
+            (clientVer != null && instId != null && s.ApplicationId == appId && s.InstanceId == instId && s.ClientAppVersion == clientVer);
+    }
 
     private sealed class ByteArrayComparer : IComparer<byte[]?>
     {

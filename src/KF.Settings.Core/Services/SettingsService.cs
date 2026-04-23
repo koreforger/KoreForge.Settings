@@ -26,6 +26,7 @@ public sealed class SettingsService : ISettingsService
         var q = db.Settings.AsQueryable();
         if (!string.IsNullOrEmpty(filter.ApplicationId)) q = q.Where(s => s.ApplicationId == filter.ApplicationId);
         if (!string.IsNullOrEmpty(filter.InstanceId)) q = q.Where(s => s.InstanceId == filter.InstanceId);
+        if (filter.ClientAppVersion != null) q = q.Where(s => s.ClientAppVersion == filter.ClientAppVersion);
         if (!string.IsNullOrEmpty(filter.KeyPrefix)) q = q.Where(s => s.Key.StartsWith(filter.KeyPrefix));
         if (filter.IsSecret.HasValue) q = q.Where(s => s.IsSecret == filter.IsSecret);
         if (filter.Skip.HasValue) q = q.Skip(filter.Skip.Value);
@@ -55,6 +56,7 @@ public sealed class SettingsService : ISettingsService
         var exists = await db.Settings.FirstOrDefaultAsync(s =>
             s.ApplicationId == request.ApplicationId &&
             s.InstanceId == request.InstanceId &&
+            s.ClientAppVersion == request.ClientAppVersion &&
             s.Key == request.Key, ct);
 
         if (exists != null)
@@ -73,7 +75,7 @@ public sealed class SettingsService : ISettingsService
             await db.SaveChangesAsync(ct);
             db.SettingsHistory.Add(new SettingsHistoryEntity
             {
-                SettingId = exists.Id, ApplicationId = exists.ApplicationId, InstanceId = exists.InstanceId, Key = exists.Key,
+                SettingId = exists.Id, ApplicationId = exists.ApplicationId, InstanceId = exists.InstanceId, ClientAppVersion = exists.ClientAppVersion, Key = exists.Key,
                 OldValue = oldVal, OldBinaryValue = oldBin, OldIsSecret = oldSec, OldValueEncrypted = oldEnc,
                 NewValue = exists.Value, NewBinaryValue = exists.BinaryValue, NewIsSecret = exists.IsSecret, NewValueEncrypted = exists.ValueEncrypted,
                 RowVersionBefore = before, RowVersionAfter = exists.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
@@ -86,7 +88,7 @@ public sealed class SettingsService : ISettingsService
         if (request.ExpectedRowVersion != null) throw new MissingRowVersionException(request.Key, request.ApplicationId, request.InstanceId);
         var created = new SettingEntity
         {
-            ApplicationId = request.ApplicationId, InstanceId = request.InstanceId, Key = request.Key,
+            ApplicationId = request.ApplicationId, InstanceId = request.InstanceId, ClientAppVersion = request.ClientAppVersion, Key = request.Key,
             Value = request.Value, BinaryValue = request.BinaryValue, IsSecret = request.IsSecret, ValueEncrypted = request.EncryptValue,
             CreatedBy = request.ChangedBy, CreatedDate = DateTime.UtcNow, ModifiedBy = request.ChangedBy, ModifiedDate = DateTime.UtcNow,
             Comment = request.Comment, Notes = request.Notes
@@ -96,7 +98,7 @@ public sealed class SettingsService : ISettingsService
         catch (DbUpdateException ex) when (IsUniqueViolation(ex)) { throw new DuplicateKeyException(request.Key, request.ApplicationId, request.InstanceId); }
         db.SettingsHistory.Add(new SettingsHistoryEntity
         {
-            SettingId = created.Id, ApplicationId = created.ApplicationId, InstanceId = created.InstanceId, Key = created.Key,
+            SettingId = created.Id, ApplicationId = created.ApplicationId, InstanceId = created.InstanceId, ClientAppVersion = created.ClientAppVersion, Key = created.Key,
             NewValue = created.Value, NewBinaryValue = created.BinaryValue, NewIsSecret = created.IsSecret, NewValueEncrypted = created.ValueEncrypted,
             RowVersionAfter = created.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
             Operation = nameof(SettingOperation.Insert)
@@ -120,7 +122,7 @@ public sealed class SettingsService : ISettingsService
         await db.SaveChangesAsync(ct);
         db.SettingsHistory.Add(new SettingsHistoryEntity
         {
-            SettingId = old.Id, ApplicationId = old.ApplicationId, InstanceId = old.InstanceId, Key = old.Key,
+            SettingId = old.Id, ApplicationId = old.ApplicationId, InstanceId = old.InstanceId, ClientAppVersion = old.ClientAppVersion, Key = old.Key,
             OldValue = old.Value, OldBinaryValue = old.BinaryValue, OldIsSecret = old.IsSecret, OldValueEncrypted = old.ValueEncrypted,
             RowVersionBefore = oldRv, ChangedBy = changedBy, ChangedDate = DateTime.UtcNow,
             Operation = nameof(SettingOperation.Delete)
@@ -138,8 +140,8 @@ public sealed class SettingsService : ISettingsService
             {
                 tx = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
                 var existing = await db.Settings
-                    .FromSqlRaw(@"SELECT TOP 1 * FROM dbo.Settings WITH (UPDLOCK, HOLDLOCK) WHERE ((ApplicationId IS NULL AND {0} IS NULL) OR ApplicationId = {0}) AND ((InstanceId IS NULL AND {1} IS NULL) OR InstanceId = {1}) AND [Key] = {2}",
-                                 request.ApplicationId, request.InstanceId, request.Key)
+                    .FromSqlRaw(@"SELECT TOP 1 * FROM dbo.Settings WITH (UPDLOCK, HOLDLOCK) WHERE ((ApplicationId IS NULL AND {0} IS NULL) OR ApplicationId = {0}) AND ((InstanceId IS NULL AND {1} IS NULL) OR InstanceId = {1}) AND ((ClientAppVersion IS NULL AND {3} IS NULL) OR ClientAppVersion = {3}) AND [Key] = {2}",
+                                 request.ApplicationId, request.InstanceId, request.Key, request.ClientAppVersion)
                     .FirstOrDefaultAsync(ct);
                 if (existing != null)
                 {
@@ -157,7 +159,7 @@ public sealed class SettingsService : ISettingsService
                     catch (DbUpdateException ex) when (IsUniqueViolation(ex)) { throw new DuplicateKeyException(existing.Key, existing.ApplicationId, existing.InstanceId); }
                     db.SettingsHistory.Add(new SettingsHistoryEntity
                     {
-                        SettingId = existing.Id, ApplicationId = existing.ApplicationId, InstanceId = existing.InstanceId, Key = existing.Key,
+                        SettingId = existing.Id, ApplicationId = existing.ApplicationId, InstanceId = existing.InstanceId, ClientAppVersion = existing.ClientAppVersion, Key = existing.Key,
                         OldValue = oldValue, OldBinaryValue = oldBin, OldIsSecret = oldSec, OldValueEncrypted = oldEnc,
                         NewValue = existing.Value, NewBinaryValue = existing.BinaryValue, NewIsSecret = existing.IsSecret, NewValueEncrypted = existing.ValueEncrypted,
                         RowVersionBefore = beforeRv, RowVersionAfter = existing.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
@@ -172,7 +174,7 @@ public sealed class SettingsService : ISettingsService
                     if (request.ExpectedRowVersion != null) throw new MissingRowVersionException(request.Key, request.ApplicationId, request.InstanceId);
                     var created = new SettingEntity
                     {
-                        ApplicationId = request.ApplicationId, InstanceId = request.InstanceId, Key = request.Key,
+                        ApplicationId = request.ApplicationId, InstanceId = request.InstanceId, ClientAppVersion = request.ClientAppVersion, Key = request.Key,
                         Value = request.Value, BinaryValue = request.BinaryValue, IsSecret = request.IsSecret, ValueEncrypted = request.EncryptValue,
                         CreatedBy = request.ChangedBy, CreatedDate = DateTime.UtcNow, ModifiedBy = request.ChangedBy, ModifiedDate = DateTime.UtcNow,
                         Comment = request.Comment, Notes = request.Notes
@@ -186,7 +188,7 @@ public sealed class SettingsService : ISettingsService
                     }
                     db.SettingsHistory.Add(new SettingsHistoryEntity
                     {
-                        SettingId = created.Id, ApplicationId = created.ApplicationId, InstanceId = created.InstanceId, Key = created.Key,
+                        SettingId = created.Id, ApplicationId = created.ApplicationId, InstanceId = created.InstanceId, ClientAppVersion = created.ClientAppVersion, Key = created.Key,
                         NewValue = created.Value, NewBinaryValue = created.BinaryValue, NewIsSecret = created.IsSecret, NewValueEncrypted = created.ValueEncrypted,
                         RowVersionAfter = created.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
                         Operation = nameof(SettingOperation.Insert)
@@ -208,7 +210,7 @@ public sealed class SettingsService : ISettingsService
         => ex.InnerException is SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627);
 
     private static SettingRow Map(SettingEntity e) => new(
-        e.Id, e.ApplicationId, e.InstanceId, e.Key, e.Value, e.BinaryValue,
+        e.Id, e.ApplicationId, e.InstanceId, e.ClientAppVersion, e.Key, e.Value, e.BinaryValue,
         e.IsSecret, e.ValueEncrypted, e.CreatedBy, e.CreatedDate,
         e.ModifiedBy, e.ModifiedDate, e.Comment, e.Notes, e.RowVersion);
 }
