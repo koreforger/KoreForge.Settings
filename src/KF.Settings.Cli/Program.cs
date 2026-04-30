@@ -9,6 +9,7 @@ using KF.Settings.Metrics;
 using KF.Settings.Models;
 using KF.Settings.Options;
 using KF.Settings.Cli.Commands;
+using KF.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,6 +39,7 @@ RootServices BuildServicesInternal(InvocationContext ctx)
     services.AddSingleton(opts);
     services.AddSingleton<IEncryptionProvider, NoOpEncryptionProvider>();
     services.AddSingleton<IMetricsRecorder, NoOpMetricsRecorder>();
+    services.AddSingleton<ISystemClock>(UtcSystemClock.Instance);
     services.AddDbContextFactory<KFSettingsDbContext>(o => o.UseSqlServer(opts.ConnectionString));
     services.AddScoped<ISettingsService, SettingsService>();
     services.AddScoped<IHistoryService, HistoryService>();

@@ -2,6 +2,7 @@ using FluentAssertions;
 using KF.Settings.Core.Services;
 using KF.Settings.Models;
 using KF.Settings.Tests.Helpers;
+using KF.Time;
 
 namespace KF.Settings.Tests.Services;
 
@@ -12,7 +13,7 @@ public class HistoryServiceTests
     {
         var factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N"));
         var metrics = new TestMetricsRecorder();
-        var settings = new SettingsService(factory, metrics);
+        var settings = new SettingsService(factory, metrics, UtcSystemClock.Instance);
         var historySvc = new HistoryService(factory);
         var created = await settings.UpsertAsync(new SettingUpsert { Key = "X", Value = "1", ChangedBy = "u" }, CancellationToken.None);
         var updated = await settings.UpsertAsync(new SettingUpsert { Key = "X", Value = "2", ChangedBy = "u", ExpectedRowVersion = created.RowVersion }, CancellationToken.None);
@@ -27,7 +28,7 @@ public class HistoryServiceTests
     {
         var factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N"));
         var metrics = new TestMetricsRecorder();
-        var settings = new SettingsService(factory, metrics);
+        var settings = new SettingsService(factory, metrics, UtcSystemClock.Instance);
         var historySvc = new HistoryService(factory);
         const string app = "MyApp";
 

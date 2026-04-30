@@ -6,6 +6,7 @@ using KF.Settings.Models;
 using KF.Settings.Options;
 using KF.Settings.Tests.Helpers;
 using KF.Settings.Interfaces;
+using KF.Time;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.CommandLine;
@@ -21,6 +22,7 @@ public class ExportImportTests
         var factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N"));
         services.AddSingleton<IDbContextFactory<KFSettingsDbContext>>(factory);
         services.AddSingleton<IMetricsRecorder, KF.Settings.Metrics.NoOpMetricsRecorder>();
+        services.AddSingleton<ISystemClock>(UtcSystemClock.Instance);
         services.AddSingleton<ISettingsService, SettingsService>();
         var opts = new KFSettingsOptions();
         services.AddSingleton(opts);

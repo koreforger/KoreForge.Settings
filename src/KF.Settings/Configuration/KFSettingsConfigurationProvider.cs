@@ -7,7 +7,6 @@ public sealed class KFSettingsConfigurationProvider : ConfigurationProvider, IDi
 {
     private readonly object _sync = new();
     private bool _active = true;
-    private CancellationTokenSource _cts = new();
 
     public IReadOnlyDictionary<string, string?> CurrentValues => new Dictionary<string, string?>(Data);
 
@@ -18,7 +17,6 @@ public sealed class KFSettingsConfigurationProvider : ConfigurationProvider, IDi
         lock (_sync)
         {
             Data = new Dictionary<string, string?>(values, StringComparer.OrdinalIgnoreCase);
-            var old = _cts; _cts = new(); old.Cancel(); old.Dispose();
         }
         OnReload();
     }
@@ -27,7 +25,5 @@ public sealed class KFSettingsConfigurationProvider : ConfigurationProvider, IDi
     {
         if (!_active) return;
         _active = false;
-        _cts.Cancel();
-        _cts.Dispose();
     }
 }

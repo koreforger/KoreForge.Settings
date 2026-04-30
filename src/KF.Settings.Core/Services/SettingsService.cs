@@ -6,6 +6,7 @@ using KF.Settings.Errors;
 using KF.Settings.Interfaces;
 using KF.Settings.Metrics;
 using KF.Settings.Models;
+using KF.Time;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,9 +17,10 @@ public sealed class SettingsService : ISettingsService
 {
     private readonly IDbContextFactory<KFSettingsDbContext> _factory;
     private readonly IMetricsRecorder _metrics;
+    private readonly ISystemClock _clock;
 
-    public SettingsService(IDbContextFactory<KFSettingsDbContext> factory, IMetricsRecorder metrics)
-    { _factory = factory; _metrics = metrics; }
+    public SettingsService(IDbContextFactory<KFSettingsDbContext> factory, IMetricsRecorder metrics, ISystemClock clock)
+    { _factory = factory; _metrics = metrics; _clock = clock; }
 
     public async Task<IReadOnlyList<SettingRow>> QueryAsync(SettingQuery filter, CancellationToken ct)
     {
@@ -70,7 +72,7 @@ public sealed class SettingsService : ISettingsService
             var before = exists.RowVersion.ToArray();
             var oldVal = exists.Value; var oldBin = exists.BinaryValue; var oldSec = exists.IsSecret; var oldEnc = exists.ValueEncrypted;
             exists.Value = request.Value; exists.BinaryValue = request.BinaryValue; exists.IsSecret = request.IsSecret;
-            exists.ValueEncrypted = request.EncryptValue; exists.ModifiedBy = request.ChangedBy; exists.ModifiedDate = DateTime.UtcNow;
+            exists.ValueEncrypted = request.EncryptValue; exists.ModifiedBy = request.ChangedBy; exists.ModifiedDate = _clock.UtcNow.UtcDateTime;
             exists.Comment = request.Comment; exists.Notes = request.Notes;
             await db.SaveChangesAsync(ct);
             db.SettingsHistory.Add(new SettingsHistoryEntity
@@ -78,7 +80,7 @@ public sealed class SettingsService : ISettingsService
                 SettingId = exists.Id, ApplicationId = exists.ApplicationId, InstanceId = exists.InstanceId, ClientAppVersion = exists.ClientAppVersion, Key = exists.Key,
                 OldValue = oldVal, OldBinaryValue = oldBin, OldIsSecret = oldSec, OldValueEncrypted = oldEnc,
                 NewValue = exists.Value, NewBinaryValue = exists.BinaryValue, NewIsSecret = exists.IsSecret, NewValueEncrypted = exists.ValueEncrypted,
-                RowVersionBefore = before, RowVersionAfter = exists.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
+                RowVersionBefore = before, RowVersionAfter = exists.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = _clock.UtcNow.UtcDateTime,
                 Operation = nameof(SettingOperation.Update)
             });
             await db.SaveChangesAsync(ct);
@@ -90,7 +92,7 @@ public sealed class SettingsService : ISettingsService
         {
             ApplicationId = request.ApplicationId, InstanceId = request.InstanceId, ClientAppVersion = request.ClientAppVersion, Key = request.Key,
             Value = request.Value, BinaryValue = request.BinaryValue, IsSecret = request.IsSecret, ValueEncrypted = request.EncryptValue,
-            CreatedBy = request.ChangedBy, CreatedDate = DateTime.UtcNow, ModifiedBy = request.ChangedBy, ModifiedDate = DateTime.UtcNow,
+            CreatedBy = request.ChangedBy, CreatedDate = _clock.UtcNow.UtcDateTime, ModifiedBy = request.ChangedBy, ModifiedDate = _clock.UtcNow.UtcDateTime,
             Comment = request.Comment, Notes = request.Notes
         };
         db.Settings.Add(created);
@@ -100,7 +102,7 @@ public sealed class SettingsService : ISettingsService
         {
             SettingId = created.Id, ApplicationId = created.ApplicationId, InstanceId = created.InstanceId, ClientAppVersion = created.ClientAppVersion, Key = created.Key,
             NewValue = created.Value, NewBinaryValue = created.BinaryValue, NewIsSecret = created.IsSecret, NewValueEncrypted = created.ValueEncrypted,
-            RowVersionAfter = created.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
+            RowVersionAfter = created.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = _clock.UtcNow.UtcDateTime,
             Operation = nameof(SettingOperation.Insert)
         });
         await db.SaveChangesAsync(ct);
@@ -124,7 +126,7 @@ public sealed class SettingsService : ISettingsService
         {
             SettingId = old.Id, ApplicationId = old.ApplicationId, InstanceId = old.InstanceId, ClientAppVersion = old.ClientAppVersion, Key = old.Key,
             OldValue = old.Value, OldBinaryValue = old.BinaryValue, OldIsSecret = old.IsSecret, OldValueEncrypted = old.ValueEncrypted,
-            RowVersionBefore = oldRv, ChangedBy = changedBy, ChangedDate = DateTime.UtcNow,
+            RowVersionBefore = oldRv, ChangedBy = changedBy, ChangedDate = _clock.UtcNow.UtcDateTime,
             Operation = nameof(SettingOperation.Delete)
         });
         await db.SaveChangesAsync(ct);
@@ -153,7 +155,7 @@ public sealed class SettingsService : ISettingsService
                     }
                     var oldValue = existing.Value; var oldBin = existing.BinaryValue; var oldSec = existing.IsSecret; var oldEnc = existing.ValueEncrypted; var beforeRv = existing.RowVersion.ToArray();
                     existing.Value = request.Value; existing.BinaryValue = request.BinaryValue; existing.IsSecret = request.IsSecret;
-                    existing.ValueEncrypted = request.EncryptValue; existing.ModifiedBy = request.ChangedBy; existing.ModifiedDate = DateTime.UtcNow;
+                    existing.ValueEncrypted = request.EncryptValue; existing.ModifiedBy = request.ChangedBy; existing.ModifiedDate = _clock.UtcNow.UtcDateTime;
                     existing.Comment = request.Comment; existing.Notes = request.Notes;
                     try { await db.SaveChangesAsync(ct); }
                     catch (DbUpdateException ex) when (IsUniqueViolation(ex)) { throw new DuplicateKeyException(existing.Key, existing.ApplicationId, existing.InstanceId); }
@@ -162,7 +164,7 @@ public sealed class SettingsService : ISettingsService
                         SettingId = existing.Id, ApplicationId = existing.ApplicationId, InstanceId = existing.InstanceId, ClientAppVersion = existing.ClientAppVersion, Key = existing.Key,
                         OldValue = oldValue, OldBinaryValue = oldBin, OldIsSecret = oldSec, OldValueEncrypted = oldEnc,
                         NewValue = existing.Value, NewBinaryValue = existing.BinaryValue, NewIsSecret = existing.IsSecret, NewValueEncrypted = existing.ValueEncrypted,
-                        RowVersionBefore = beforeRv, RowVersionAfter = existing.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
+                        RowVersionBefore = beforeRv, RowVersionAfter = existing.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = _clock.UtcNow.UtcDateTime,
                         Operation = nameof(SettingOperation.Update)
                     });
                     await db.SaveChangesAsync(ct);
@@ -176,7 +178,7 @@ public sealed class SettingsService : ISettingsService
                     {
                         ApplicationId = request.ApplicationId, InstanceId = request.InstanceId, ClientAppVersion = request.ClientAppVersion, Key = request.Key,
                         Value = request.Value, BinaryValue = request.BinaryValue, IsSecret = request.IsSecret, ValueEncrypted = request.EncryptValue,
-                        CreatedBy = request.ChangedBy, CreatedDate = DateTime.UtcNow, ModifiedBy = request.ChangedBy, ModifiedDate = DateTime.UtcNow,
+                        CreatedBy = request.ChangedBy, CreatedDate = _clock.UtcNow.UtcDateTime, ModifiedBy = request.ChangedBy, ModifiedDate = _clock.UtcNow.UtcDateTime,
                         Comment = request.Comment, Notes = request.Notes
                     };
                     db.Settings.Add(created);
@@ -190,7 +192,7 @@ public sealed class SettingsService : ISettingsService
                     {
                         SettingId = created.Id, ApplicationId = created.ApplicationId, InstanceId = created.InstanceId, ClientAppVersion = created.ClientAppVersion, Key = created.Key,
                         NewValue = created.Value, NewBinaryValue = created.BinaryValue, NewIsSecret = created.IsSecret, NewValueEncrypted = created.ValueEncrypted,
-                        RowVersionAfter = created.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = DateTime.UtcNow,
+                        RowVersionAfter = created.RowVersion, ChangedBy = request.ChangedBy, ChangedDate = _clock.UtcNow.UtcDateTime,
                         Operation = nameof(SettingOperation.Insert)
                     });
                     await db.SaveChangesAsync(ct);

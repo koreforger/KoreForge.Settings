@@ -3,6 +3,7 @@ using KF.Settings.Core.Services;
 using KF.Settings.Errors;
 using KF.Settings.Models;
 using KF.Settings.Tests.Helpers;
+using KF.Time;
 using Microsoft.EntityFrameworkCore;
 
 namespace KF.Settings.Tests.Services;
@@ -14,7 +15,7 @@ public class HistoryServiceAdvancedTests
     {
         var factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N"));
         var metrics = new TestMetricsRecorder();
-        var svc = new SettingsService(factory, metrics);
+        var svc = new SettingsService(factory, metrics, UtcSystemClock.Instance);
         var histSvc = new HistoryService(factory);
         var created = await svc.UpsertAsync(new SettingUpsert { Key = "DelKey", Value = "v", ChangedBy = "u" }, CancellationToken.None);
         await svc.DeleteAsync(created.Id, "u", created.RowVersion, CancellationToken.None);
@@ -29,7 +30,7 @@ public class HistoryServiceAdvancedTests
     {
         var factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N"));
         var metrics = new TestMetricsRecorder();
-        var svc = new SettingsService(factory, metrics);
+        var svc = new SettingsService(factory, metrics, UtcSystemClock.Instance);
         var histSvc = new HistoryService(factory);
         await svc.UpsertAsync(new SettingUpsert { Key = "Idx", Value = "v", ChangedBy = "u" }, CancellationToken.None);
         await FluentActions.Invoking(() => histSvc.RollbackAsync("Idx", null, null, null, 99, "u", CancellationToken.None))
@@ -41,7 +42,7 @@ public class HistoryServiceAdvancedTests
     {
         var factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N"));
         var metrics = new TestMetricsRecorder();
-        var svc = new SettingsService(factory, metrics);
+        var svc = new SettingsService(factory, metrics, UtcSystemClock.Instance);
         var histSvc = new HistoryService(factory);
         var v1 = await svc.UpsertAsync(new SettingUpsert { Key = "RK", Value = "1", ChangedBy = "u" }, CancellationToken.None);
         var v2 = await svc.UpsertAsync(new SettingUpsert { Key = "RK", Value = "2", ChangedBy = "u", ExpectedRowVersion = v1.RowVersion }, CancellationToken.None);

@@ -3,6 +3,7 @@ using KF.Settings.Core.Services;
 using KF.Settings.Errors;
 using KF.Settings.Models;
 using KF.Settings.Tests.Helpers;
+using KF.Time;
 using Microsoft.EntityFrameworkCore;
 
 namespace KF.Settings.Tests.Services;
@@ -10,7 +11,7 @@ namespace KF.Settings.Tests.Services;
 public class SettingsServiceAdvancedTests
 {
     private static SettingsService Create(out InMemoryDbContextFactory factory, out TestMetricsRecorder metrics)
-    { factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N")); metrics = new TestMetricsRecorder(); return new SettingsService(factory, metrics); }
+    { factory = new InMemoryDbContextFactory(Guid.NewGuid().ToString("N")); metrics = new TestMetricsRecorder(); return new SettingsService(factory, metrics, UtcSystemClock.Instance); }
 
     [Fact]
     public async Task Given_BinaryInsert_When_Upsert_Then_BinaryPersistedAndHistoryAdded()

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="KoreForge.Time" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
 
