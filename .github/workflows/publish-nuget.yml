@@ -33,7 +33,7 @@ jobs:
 
       - name: Pack
         run: |
-            dotnet pack KoreForge.Settings.slnx -c Release --no-build -o artifacts/
+            dotnet pack KoreForge.Settings.slnx -c Release -o artifacts/
 
       - name: Push to NuGet.org
         run: |
