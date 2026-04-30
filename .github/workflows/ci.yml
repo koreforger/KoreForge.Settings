@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+    tags-ignore: ['**']   # tag pushes are handled by publish-nuget.yml
+  pull_request:
+
+jobs:
+  build-test:
+    name: Build, Test & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # MinVer needs full history to compute version
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore local tools
+        run: dotnet tool restore
+
+      - name: Build
+        run: dotnet build KoreForge.Settings.slnx -c Debug
+
+      - name: Test with coverage
+        run: |
+          dotnet test KoreForge.Settings.slnx -c Debug --no-build \
+            --logger "html;LogFileName=TestResults.html" \
+            --results-directory out/TestResults
+
+      - name: Generate HTML coverage report
+        if: always()
+        run: |
+          dotnet tool run reportgenerator \
+            -reports:out/TestResults/raw/coverage.cobertura.xml \
+            -targetdir:out/TestResults/coverage \
+            "-reporttypes:Html;Cobertura"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: out/TestResults/TestResults.html
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: out/TestResults/coverage/

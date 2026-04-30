@@ -33,8 +33,7 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack src/KF.Settings/KF.Settings.csproj -c Release --no-build -o artifacts/
-          dotnet pack src/KF.Settings.Cli/KF.Settings.Cli.csproj -c Release --no-build -o artifacts/
+            dotnet pack KoreForge.Settings.slnx -c Release --no-build -o artifacts/
 
       - name: Push to NuGet.org
         run: |
