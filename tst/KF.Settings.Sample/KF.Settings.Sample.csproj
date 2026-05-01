@@ -13,12 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\KF.Settings\KF.Settings.csproj" />
-    <ProjectReference Include="..\..\src\KF.Settings.Abstractions\KF.Settings.Abstractions.csproj" />
-    <ProjectReference Include="..\..\src\KF.Settings.Core\KF.Settings.Core.csproj" />
-    <ProjectReference Include="..\..\src\KF.Settings.Data\KF.Settings.Data.csproj" />
-    <ProjectReference Include="..\..\src\KF.Settings.Encryption\KF.Settings.Encryption.csproj" />
-    <ProjectReference Include="..\..\src\KF.Settings.Metrics\KF.Settings.Metrics.csproj" />
+    <PackageReference Include="KoreForge.Settings" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" />
   </ItemGroup>
 
 </Project>

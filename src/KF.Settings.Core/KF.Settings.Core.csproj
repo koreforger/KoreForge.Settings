@@ -11,10 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KF.Settings.Abstractions\KF.Settings.Abstractions.csproj" />
-    <ProjectReference Include="..\KF.Settings.Data\KF.Settings.Data.csproj" />
-    <ProjectReference Include="..\KF.Settings.Encryption\KF.Settings.Encryption.csproj" />
-    <ProjectReference Include="..\KF.Settings.Metrics\KF.Settings.Metrics.csproj" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" />
   </ItemGroup>
 
   <ItemGroup>
