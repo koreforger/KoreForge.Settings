@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <!--
     Multi-DLL Bundling Pattern: TargetsForTfmSpecificBuildOutput
 
@@ -29,11 +29,11 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" PrivateAssets="all" />
-    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.0.1-alpha" PrivateAssets="all" />
-    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" PrivateAssets="all" />
-    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" PrivateAssets="all" />
-    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" PrivateAssets="all" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.1.2" PrivateAssets="all" />
+    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.1.2" PrivateAssets="all" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.1.2" PrivateAssets="all" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.1.2" PrivateAssets="all" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.1.2" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options" />

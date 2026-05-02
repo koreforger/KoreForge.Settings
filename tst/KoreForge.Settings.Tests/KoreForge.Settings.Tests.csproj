@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <UseAppHost>false</UseAppHost>
     <IsTestProject>true</IsTestProject>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>NU5104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="coverlet.collector">
@@ -27,13 +28,13 @@
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Cli" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Cli" VersionOverride="1.1.2" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

@@ -8,6 +8,7 @@
     <Description>CLI tool for KoreForge multi-app settings management.</Description>
     <PackageTags>configuration;settings;cli;tool</PackageTags>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>NU5104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" />
@@ -19,11 +20,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" />
-    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.1.2" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
