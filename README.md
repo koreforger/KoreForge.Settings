@@ -6,13 +6,13 @@ SQL Server-backed live-reload configuration provider with multi-app scoping, enc
 
 | Assembly | Description |
 |----------|-------------|
-| `KF.Settings` | Configuration provider, hot-reload background service |
-| `KF.Settings.Abstractions` | Models, interfaces, options |
-| `KF.Settings.Core` | `SettingsService`, `HistoryService`, binary accessor |
-| `KF.Settings.Data` | EF Core `KFSettingsDbContext` |
-| `KF.Settings.Encryption` | `IEncryptionProvider` contract + `NoOpEncryptionProvider` |
-| `KF.Settings.Metrics` | In-memory metrics recorder for reload operations |
-| `KF.Settings.Cli` | CLI tool: `list`, `get`, `set`, `delete`, `history`, `rollback`, `export`, `import` |
+| `KoreForge.Settings` | Configuration provider, hot-reload background service |
+| `KoreForge.Settings.Abstractions` | Models, interfaces, options |
+| `KoreForge.Settings.Core` | `SettingsService`, `HistoryService`, binary accessor |
+| `KoreForge.Settings.Data` | EF Core `KoreForgeSettingsDbContext` |
+| `KoreForge.Settings.Encryption` | `IEncryptionProvider` contract + `NoOpEncryptionProvider` |
+| `KoreForge.Settings.Metrics` | In-memory metrics recorder for reload operations |
+| `KoreForge.Settings.Cli` | CLI tool: `list`, `get`, `set`, `delete`, `history`, `rollback`, `export`, `import` |
 
 ## Installation
 
@@ -26,7 +26,7 @@ SQL Server-backed live-reload configuration provider with multi-app scoping, enc
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Add KF Settings as a configuration source
-builder.Configuration.AddKFSettings(opts =>
+builder.Configuration.AddKoreForgeSettings(opts =>
 {
     opts.ApplicationId = "my-app";
     opts.PollingInterval = TimeSpan.FromSeconds(30);
@@ -34,12 +34,12 @@ builder.Configuration.AddKFSettings(opts =>
 });
 
 // 2. Register services (resolves connection string from config/env)
-builder.Services.AddKFSettingsServices(builder.Configuration);
+builder.Services.AddKoreForgeSettingsServices(builder.Configuration);
 
 var app = builder.Build();
 
 // 3. Use ISettingsService for CRUD
-app.MapGet("/settings", async (ISettingsService svc, KFSettingsOptions opts, CancellationToken ct) =>
+app.MapGet("/settings", async (ISettingsService svc, KoreForgeSettingsOptions opts, CancellationToken ct) =>
 {
     var rows = await svc.QueryAsync(new SettingQuery { ApplicationId = opts.ApplicationId }, ct);
     return rows;
@@ -56,8 +56,8 @@ app.MapPost("/settings", async (SettingUpsert request, ISettingsService svc, Can
 
 The connection string is resolved in order:
 
-1. `KFSettingsOptions.ConnectionString` (set in `AddKFSettings` callback)
-2. `ConnectionStrings:KFSettings` in `appsettings.json`
+1. `KoreForgeSettingsOptions.ConnectionString` (set in `AddKoreForgeSettings` callback)
+2. `ConnectionStrings:KoreForgeSettings` in `appsettings.json`
 3. `KF:Settings:ConnectionString` in configuration
 4. `KF_SETTINGS_CONNECTIONSTRING` environment variable
 
@@ -103,7 +103,7 @@ The `SettingsReloadBackgroundService` automatically polls SQL Server at the conf
 When deploying a new binary version alongside the old one, set `ClientAppVersion` in options so the new binary reads version-specific setting overrides without affecting the old binary:
 
 ```csharp
-services.AddKFSettings(opts =>
+services.AddKoreForgeSettings(opts =>
 {
     opts.ApplicationId = "my-app";
     opts.ClientAppVersion = "v2.0.0"; // new binary only; omit or null for legacy binary
@@ -123,8 +123,8 @@ Resolution precedence (first match per key wins, highest priority first):
 Rows with `ClientAppVersion IS NULL` continue to work exactly as before (backward compatible). After the rollout window, clean up version-specific overrides using the CLI:
 
 ```bash
-kf-settings list --application my-app --client-version v2.0.0
-kf-settings export --application my-app --client-version v2.0.0 --file rollout-overrides.json
+koreforge-settings list --application my-app --client-version v2.0.0
+koreforge-settings export --application my-app --client-version v2.0.0 --file rollout-overrides.json
 ```
 
 ```csharp
@@ -137,12 +137,12 @@ app.MapGet("/health/settings", (IHealthReporter health) =>
 ```bash
 dotnet tool install -g KoreForge.Settings.Cli
 
-kf-settings list --application my-app --connection "Server=...;Database=...;"
-kf-settings set --application my-app --key "Feature:Enabled" --value "true"
-kf-settings history --application my-app --key "Feature:Enabled"
-kf-settings rollback --application my-app --key "Feature:Enabled" --version 2
-kf-settings export --application my-app > settings.json
-kf-settings import --application my-app < settings.json
+koreforge-settings list --application my-app --connection "Server=...;Database=...;"
+koreforge-settings set --application my-app --key "Feature:Enabled" --value "true"
+koreforge-settings history --application my-app --key "Feature:Enabled"
+koreforge-settings rollback --application my-app --key "Feature:Enabled" --version 2
+koreforge-settings export --application my-app > settings.json
+koreforge-settings import --application my-app < settings.json
 ```
 
 ## License

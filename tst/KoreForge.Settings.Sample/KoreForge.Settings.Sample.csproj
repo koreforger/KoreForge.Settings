@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>KoreForge.Settings.Sample</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="KoreForge.Settings" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" />
+  </ItemGroup>
+</Project>

@@ -2,13 +2,13 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = 'KFSettings')
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = 'KoreForgeSettings')
 BEGIN
-    CREATE DATABASE KFSettings;
+    CREATE DATABASE KoreForgeSettings;
 END
 GO
 
-USE KFSettings;
+USE KoreForgeSettings;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'dbo') EXEC('CREATE SCHEMA dbo');
@@ -101,5 +101,5 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_SettingsHistory_KeyScope
     CREATE INDEX IX_SettingsHistory_KeyScopeDate ON dbo.SettingsHistory(ApplicationId, InstanceId, ClientAppVersion, [Key], ChangedDate DESC);
 GO
 
-PRINT 'KFSettings database initialised successfully.';
+PRINT 'KoreForgeSettings database initialised successfully.';
 GO

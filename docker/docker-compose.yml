@@ -1,7 +1,7 @@
 services:
   sql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: kf-settings-sql
+    container_name: koreforge-settings-sql
     environment:
       SA_PASSWORD: "KoreForge_Dev_2024!"
       ACCEPT_EULA: "Y"

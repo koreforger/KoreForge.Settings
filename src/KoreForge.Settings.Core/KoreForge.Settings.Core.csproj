@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>KoreForge.Settings.Core</PackageId>
+    <AssemblyName>KoreForge.Settings.Core</AssemblyName>
+    <RootNamespace>KoreForge.Settings.Core</RootNamespace>
+    <Description>Core services implementation for KoreForge settings.</Description>
+    <PackageTags>configuration;settings;multi-tenant;provider</PackageTags>
+    <IsPackable>true</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.0.1-alpha" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="KoreForge.Time" VersionOverride="1.0.1-alpha" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>KoreForge.Settings.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

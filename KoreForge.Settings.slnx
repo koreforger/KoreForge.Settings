@@ -1,11 +1,11 @@
 <Solution>
-  <Project Path="src/KF.Settings.Abstractions/KF.Settings.Abstractions.csproj" />
-  <Project Path="src/KF.Settings.Cli/KF.Settings.Cli.csproj" />
-  <Project Path="src/KF.Settings.Core/KF.Settings.Core.csproj" />
-  <Project Path="src/KF.Settings.Data/KF.Settings.Data.csproj" />
-  <Project Path="src/KF.Settings.Encryption/KF.Settings.Encryption.csproj" />
-  <Project Path="src/KF.Settings.Metrics/KF.Settings.Metrics.csproj" />
-  <Project Path="src/KF.Settings/KF.Settings.csproj" />
-  <Project Path="tst/KF.Settings.Sample/KF.Settings.Sample.csproj" />
-  <Project Path="tst/KF.Settings.Tests/KF.Settings.Tests.csproj" />
+  <Project Path="src/KoreForge.Settings.Abstractions/KoreForge.Settings.Abstractions.csproj" />
+  <Project Path="src/KoreForge.Settings.Cli/KoreForge.Settings.Cli.csproj" />
+  <Project Path="src/KoreForge.Settings.Core/KoreForge.Settings.Core.csproj" />
+  <Project Path="src/KoreForge.Settings.Data/KoreForge.Settings.Data.csproj" />
+  <Project Path="src/KoreForge.Settings.Encryption/KoreForge.Settings.Encryption.csproj" />
+  <Project Path="src/KoreForge.Settings.Metrics/KoreForge.Settings.Metrics.csproj" />
+  <Project Path="src/KoreForge.Settings/KoreForge.Settings.csproj" />
+  <Project Path="tst/KoreForge.Settings.Sample/KoreForge.Settings.Sample.csproj" />
+  <Project Path="tst/KoreForge.Settings.Tests/KoreForge.Settings.Tests.csproj" />
 </Solution>
