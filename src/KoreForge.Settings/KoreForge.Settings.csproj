@@ -19,12 +19,11 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_IncludeSettingsAssemblies</TargetsForTfmSpecificBuildOutput>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  <Target Name="_IncludeSettingsAssemblies" DependsOnTargets="ResolveReferences">
+  <Target Name="_IncludeSettingsAssemblies" DependsOnTargets="ResolvePackageAssets;ResolveReferences">
     <ItemGroup>
-      <_SettingsAssemblies Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' and (           '%(ReferenceCopyLocalPaths.FileName)' == 'KoreForge.Settings.Abstractions' or           '%(ReferenceCopyLocalPaths.FileName)' == 'KoreForge.Settings.Core' or           '%(ReferenceCopyLocalPaths.FileName)' == 'KoreForge.Settings.Data' or           '%(ReferenceCopyLocalPaths.FileName)' == 'KoreForge.Settings.Encryption' or           '%(ReferenceCopyLocalPaths.FileName)' == 'KoreForge.Settings.Metrics')" />
+      <_SettingsAssemblies Include="@(RuntimeCopyLocalItems)" Condition="'%(NuGetPackageId)' == 'KoreForge.Settings.Abstractions' or           '%(NuGetPackageId)' == 'KoreForge.Settings.Core' or           '%(NuGetPackageId)' == 'KoreForge.Settings.Data' or           '%(NuGetPackageId)' == 'KoreForge.Settings.Encryption' or           '%(NuGetPackageId)' == 'KoreForge.Settings.Metrics'" />
       <TfmSpecificPackageFile Include="@(_SettingsAssemblies)">
         <PackagePath>lib\$(TargetFramework)\</PackagePath>
-        <BuildOutputInPackage>true</BuildOutputInPackage>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>

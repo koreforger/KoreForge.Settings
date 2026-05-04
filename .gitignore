@@ -11,3 +11,10 @@ out/
 *.DS_Store
 TestResults/
 coverage-report/
+
+
+# Prevent accidental commits of NuGet-extracted package content
+/doc/KoreForge.*/
+/doc/Event.*/
+/docs/KoreForge.*/
+/docs/Event.*/
