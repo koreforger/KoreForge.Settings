@@ -20,11 +20,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Core" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="0.0.11-alpha.0" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

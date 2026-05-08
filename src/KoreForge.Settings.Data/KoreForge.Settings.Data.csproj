@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="0.0.11-alpha.0" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

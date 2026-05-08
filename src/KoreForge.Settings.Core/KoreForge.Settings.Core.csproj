@@ -10,13 +10,13 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="1.1.2" />
-    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Settings.Abstractions" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Data" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Encryption" VersionOverride="0.0.11-alpha.0" />
+    <PackageReference Include="KoreForge.Settings.Metrics" VersionOverride="0.0.11-alpha.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="KoreForge.Time" VersionOverride="1.1.2" />
+    <PackageReference Include="KoreForge.Time" VersionOverride="0.0.11-alpha.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
